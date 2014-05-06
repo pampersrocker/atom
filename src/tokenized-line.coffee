@@ -176,25 +176,6 @@ class TokenizedLine
     for j in [i...desiredScopes.length]
       scopeStack.push(new Scope(desiredScopes[j]))
 
-  buildInnerHTML: ->
-    @innerHTML ?=
-      if @text.length is 0
-        @buildEmptyLineHTML()
-      else
-        @buildScopeTreeHTML(@getScopeTree())
-
-  buildEmptyLineHTML: ->
-    "&nbsp;"
-
-  buildScopeTreeHTML: (scopeTree) ->
-    if scopeTree.children?
-      html = "<span class='#{scopeTree.scope.replace(/\./g, ' ')}'>"
-      html += @buildScopeTreeHTML(child) for child in scopeTree.children
-      html += "</span>"
-      html
-    else
-      "<span>#{scopeTree.getValueAsHtml({hasIndentGuide: false})}</span>"
-
 class Scope
   constructor: (@scope) ->
     @children = []
