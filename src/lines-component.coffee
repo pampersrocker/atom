@@ -24,6 +24,10 @@ LinesComponent = React.createClass
   componentWillMount: ->
     @measuredLines = new WeakSet
 
+    {editor} = @props
+    for tokenizedLine in editor.linesForScreenRows(0, editor.getLineCount())
+      tokenizedLine.buildInnerHTML()
+
   componentDidMount: ->
     @measureLineHeightAndCharWidth()
 
@@ -38,8 +42,8 @@ LinesComponent = React.createClass
 
   componentDidUpdate: (prevProps) ->
     @measureLineHeightAndCharWidth() unless isEqualForProperties(prevProps, @props, 'fontSize', 'fontFamily', 'lineHeight')
-    @clearScopedCharWidths() unless isEqualForProperties(prevProps, @props, 'fontSize', 'fontFamily')
-    @measureCharactersInNewLines() unless @props.scrollingVertically
+    # @clearScopedCharWidths() unless isEqualForProperties(prevProps, @props, 'fontSize', 'fontFamily')
+    # @measureCharactersInNewLines() unless @props.scrollingVertically
 
   measureLineHeightAndCharWidth: ->
     node = @getDOMNode()
@@ -103,37 +107,37 @@ LineComponent = React.createClass
   displayName: 'LineComponent'
 
   render: ->
-    {screenRow, lineHeight} = @props
+    {tokenizedLine, screenRow, lineHeight} = @props
 
     style =
       WebkitTransform: "translate3d(0, #{screenRow * lineHeight}px, 0)"
 
-    div className: 'line', style: style, 'data-screen-row': screenRow, dangerouslySetInnerHTML: {__html: @buildInnerHTML()}
+    div className: 'line', style: style, 'data-screen-row': screenRow, dangerouslySetInnerHTML: {__html: tokenizedLine.innerHTML}
 
-  buildInnerHTML: ->
-    if @props.tokenizedLine.text.length is 0
-      @buildEmptyLineHTML()
-    else
-      @buildScopeTreeHTML(@props.tokenizedLine.getScopeTree())
-
-  buildEmptyLineHTML: ->
-    {showIndentGuide, tokenizedLine} = @props
-    {indentLevel, tabLength} = tokenizedLine
-
-    if showIndentGuide and indentLevel > 0
-      indentSpan = "<span class='indent-guide'>#{multiplyString(' ', tabLength)}</span>"
-      multiplyString(indentSpan, indentLevel + 1)
-    else
-      "&nbsp;"
-
-  buildScopeTreeHTML: (scopeTree) ->
-    if scopeTree.children?
-      html = "<span class='#{scopeTree.scope.replace(/\./g, ' ')}'>"
-      html += @buildScopeTreeHTML(child) for child in scopeTree.children
-      html += "</span>"
-      html
-    else
-      "<span>#{scopeTree.getValueAsHtml({hasIndentGuide: @props.showIndentGuide})}</span>"
+  # buildInnerHTML: ->
+  #   if @props.tokenizedLine.text.length is 0
+  #     @buildEmptyLineHTML()
+  #   else
+  #     @buildScopeTreeHTML(@props.tokenizedLine.getScopeTree())
+  #
+  # buildEmptyLineHTML: ->
+  #   {showIndentGuide, tokenizedLine} = @props
+  #   {indentLevel, tabLength} = tokenizedLine
+  #
+  #   if showIndentGuide and indentLevel > 0
+  #     indentSpan = "<span class='indent-guide'>#{multiplyString(' ', tabLength)}</span>"
+  #     multiplyString(indentSpan, indentLevel + 1)
+  #   else
+  #     "&nbsp;"
+  #
+  # buildScopeTreeHTML: (scopeTree) ->
+  #   if scopeTree.children?
+  #     html = "<span class='#{scopeTree.scope.replace(/\./g, ' ')}'>"
+  #     html += @buildScopeTreeHTML(child) for child in scopeTree.children
+  #     html += "</span>"
+  #     html
+  #   else
+  #     "<span>#{scopeTree.getValueAsHtml({hasIndentGuide: @props.showIndentGuide})}</span>"
 
   shouldComponentUpdate: (newProps) ->
     not isEqualForProperties(newProps, @props, 'showIndentGuide', 'lineHeight', 'screenRow')

@@ -375,6 +375,10 @@ EditorComponent = React.createClass
   onScreenLinesChanged: (change) ->
     {editor} = @props
     @pendingChanges.push(change)
+
+    for tokenizedLine in editor.linesForScreenRows(change.start, change.end)
+      tokenizedLine.buildInnerHTML()
+
     @requestUpdate() if editor.intersectsVisibleRowRange(change.start, change.end + 1) # TODO: Use closed-open intervals for change events
 
   onSelectionAdded: (selection) ->
