@@ -65,6 +65,8 @@
   'cmd-}': 'pane:show-next-item'
   'cmd-alt-left': 'pane:show-previous-item'
   'cmd-alt-right': 'pane:show-next-item'
+  'ctrl-tab': 'pane:show-next-item'
+  'ctrl-shift-tab': 'pane:show-previous-item'
   'cmd-=': 'window:increase-font-size'
   'cmd-+': 'window:increase-font-size'
   'cmd--': 'window:decrease-font-size'
@@ -94,17 +96,23 @@
   'cmd-9': 'pane:show-item-9'
 
 '.editor':
+  # Platform Bindings
+  'alt-left': 'editor:move-to-beginning-of-word'
+  'alt-right': 'editor:move-to-end-of-word'
+  'alt-shift-left': 'editor:select-to-beginning-of-word'
+  'alt-shift-right': 'editor:select-to-end-of-word'
+
   # Apple Specific
-  'cmd-backspace': 'editor:backspace-to-beginning-of-line'
-  'cmd-shift-backspace': 'editor:backspace-to-beginning-of-line'
-  'cmd-delete': 'editor:backspace-to-beginning-of-line'
+  'cmd-backspace': 'editor:delete-to-beginning-of-line'
+  'cmd-shift-backspace': 'editor:delete-to-beginning-of-line'
+  'cmd-delete': 'editor:delete-to-beginning-of-line'
   'ctrl-A': 'editor:select-to-first-character-of-line'
   'ctrl-E': 'editor:select-to-end-of-line'
   'cmd-left': 'editor:move-to-first-character-of-line'
   'cmd-right': 'editor:move-to-end-of-screen-line'
   'cmd-shift-left': 'editor:select-to-first-character-of-line'
   'cmd-shift-right': 'editor:select-to-end-of-line'
-  'alt-backspace': 'editor:backspace-to-beginning-of-word'
+  'alt-backspace': 'editor:delete-to-beginning-of-word'
   'alt-delete': 'editor:delete-to-end-of-word'
   'ctrl-a': 'editor:move-to-beginning-of-line'
   'ctrl-e': 'editor:move-to-end-of-line'

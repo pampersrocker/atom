@@ -109,8 +109,8 @@ TextMateScopeSelector = require('first-mate').ScopeSelector
 # - {::insertNewlineAbove}
 # - {::insertNewlineBelow}
 # - {::backspace}
-# - {::backspaceToBeginningOfWord}
-# - {::backspaceToBeginningOfLine}
+# - {::deleteToBeginningOfWord}
+# - {::deleteToBeginningOfLine}
 # - {::delete}
 # - {::deleteToEndOfWord}
 # - {::deleteLine}
@@ -160,7 +160,7 @@ class Editor extends Model
 
     @displayBuffer ?= new DisplayBuffer({buffer, tabLength, softWrap})
     @buffer = @displayBuffer.buffer
-    @softTabs = @buffer.usesSoftTabs() ? @softTabs ? atom.config.get('editor.softTabs') ? true
+    @softTabs = @usesSoftTabs() ? @softTabs ? atom.config.get('editor.softTabs') ? true
 
     for marker in @findMarkers(@getSelectionMarkerAttributes())
       marker.setAttributes(preserveFolds: true)
@@ -316,6 +316,19 @@ class Editor extends Model
 
   # Public: Set the on-screen length of tab characters.
   setTabLength: (tabLength) -> @displayBuffer.setTabLength(tabLength)
+
+  # Public: Determine if the buffer uses hard or soft tabs.
+  #
+  # Returns `true` if the first non-comment line with leading whitespace starts
+  # with a space character. Returns `false` if it starts with a hard tab (`\t`).
+  #
+  # Returns a {Boolean},
+  usesSoftTabs: ->
+    for bufferRow in [0..@buffer.getLastRow()]
+      continue if @displayBuffer.tokenizedBuffer.lineForScreenRow(bufferRow).isComment()
+      if match = @buffer.lineForRow(bufferRow).match(/^\s/)
+        return match[0][0] != '\t'
+    undefined
 
   # Public: Clip the given {Point} to a valid position in the buffer.
   #
@@ -645,17 +658,27 @@ class Editor extends Model
   backspace: ->
     @mutateSelectedText (selection) -> selection.backspace()
 
+  # Deprecated: Use {::deleteToBeginningOfWord} instead.
+  backspaceToBeginningOfWord: ->
+    deprecate("Use Editor::deleteToBeginningOfWord() instead")
+    @deleteToBeginningOfWord()
+
+  # Deprecated: Use {::deleteToBeginningOfLine} instead.
+  backspaceToBeginningOfLine: ->
+    deprecate("Use Editor::deleteToBeginningOfLine() instead")
+    @deleteToBeginningOfLine()
+
   # Public: For each selection, if the selection is empty, delete all characters
   # of the containing word that precede the cursor. Otherwise delete the
   # selected text.
-  backspaceToBeginningOfWord: ->
-    @mutateSelectedText (selection) -> selection.backspaceToBeginningOfWord()
+  deleteToBeginningOfWord: ->
+    @mutateSelectedText (selection) -> selection.deleteToBeginningOfWord()
 
   # Public: For each selection, if the selection is empty, delete all characters
   # of the containing line that precede the cursor. Otherwise delete the
   # selected text.
-  backspaceToBeginningOfLine: ->
-    @mutateSelectedText (selection) -> selection.backspaceToBeginningOfLine()
+  deleteToBeginningOfLine: ->
+    @mutateSelectedText (selection) -> selection.deleteToBeginningOfLine()
 
   # Public: For each selection, if the selection is empty, delete the character
   # preceding the cursor. Otherwise delete the selected text.
@@ -725,13 +748,24 @@ class Editor extends Model
   # Public: For each selection, replace the selected text with the contents of
   # the clipboard.
   #
+  # If the clipboard contains the same number of selections as the current
+  # editor, each selection will be replaced with the content of the
+  # corresponding clipboard selection text.
+  #
   # options - See {Selection::insertText}.
   pasteText: (options={}) ->
     {text, metadata} = atom.clipboard.readWithMetadata()
 
     containsNewlines = text.indexOf('\n') isnt -1
 
-    if atom.config.get('editor.normalizeIndentOnPaste') and metadata
+    if metadata?.selections? and metadata.selections.length is @getSelections().length
+      @mutateSelectedText (selection, index) ->
+        text = metadata.selections[index]
+        selection.insertText(text, options)
+
+      return
+
+    else if atom.config.get("editor.normalizeIndentOnPaste") and metadata?.indentBasis?
       if !@getCursor().hasPrecedingCharactersOnLine() or containsNewlines
         options.indentBasis ?= metadata.indentBasis
 
@@ -1007,7 +1041,7 @@ class Editor extends Model
   #
   # fn - A {Function} that will be called with each {Selection}.
   mutateSelectedText: (fn) ->
-    @transact => fn(selection) for selection in @getSelections()
+    @transact => fn(selection,index) for selection,index in @getSelections()
 
   replaceSelectedText: (options={}, fn) ->
     {selectWordIfEmpty} = options
@@ -1838,6 +1872,8 @@ class Editor extends Model
   setHeight: (height) -> @displayBuffer.setHeight(height)
   getHeight: -> @displayBuffer.getHeight()
 
+  getClientHeight: -> @displayBuffer.getClientHeight()
+
   setWidth: (width) -> @displayBuffer.setWidth(width)
   getWidth: -> @displayBuffer.getWidth()
 
@@ -1875,6 +1911,16 @@ class Editor extends Model
   scrollToScreenPosition: (screenPosition) -> @displayBuffer.scrollToScreenPosition(screenPosition)
 
   scrollToBufferPosition: (bufferPosition) -> @displayBuffer.scrollToBufferPosition(bufferPosition)
+
+  horizontallyScrollable: -> @displayBuffer.horizontallyScrollable()
+
+  verticallyScrollable: -> @displayBuffer.verticallyScrollable()
+
+  getHorizontalScrollbarHeight: -> @displayBuffer.getHorizontalScrollbarHeight()
+  setHorizontalScrollbarHeight: (height) -> @displayBuffer.setHorizontalScrollbarHeight(height)
+
+  getVerticalScrollbarWidth: -> @displayBuffer.getVerticalScrollbarWidth()
+  setVerticalScrollbarWidth: (width) -> @displayBuffer.setVerticalScrollbarWidth(width)
 
   # Deprecated: Call {::joinLines} instead.
   joinLine: ->

@@ -382,15 +382,25 @@ class Selection extends Model
     @selectLeft() if @isEmpty() and not @editor.isFoldedAtScreenRow(@cursor.getScreenRow())
     @deleteSelectedText()
 
+  # Deprecated: Use {::deleteToBeginningOfWord} instead.
+  backspaceToBeginningOfWord: ->
+    deprecate("Use Selection::deleteToBeginningOfWord() instead")
+    @deleteToBeginningOfWord()
+
+  # Deprecated: Use {::deleteToBeginningOfLine} instead.
+  backspaceToBeginningOfLine: ->
+    deprecate("Use Selection::deleteToBeginningOfLine() instead")
+    @deleteToBeginningOfLine()
+
   # Public: Removes from the start of the selection to the beginning of the
   # current word if the selection is empty otherwise it deletes the selection.
-  backspaceToBeginningOfWord: ->
+  deleteToBeginningOfWord: ->
     @selectToBeginningOfWord() if @isEmpty()
     @deleteSelectedText()
 
   # Public: Removes from the beginning of the line which the selection begins on
   # all the way through to the end of the selection.
-  backspaceToBeginningOfLine: ->
+  deleteToBeginningOfLine: ->
     if @isEmpty() and @cursor.isAtBeginningOfLine()
       @selectLeft()
     else
@@ -503,11 +513,23 @@ class Selection extends Model
     @delete()
 
   # Public: Copies the current selection to the clipboard.
+  #
+  # If the `maintainClipboard` is set to `true`, a specific metadata property
+  # is created to store each content copied to the clipboard. The clipboard
+  # `text` still contains the concatenation of the clipboard with the
+  # current selection.
   copy: (maintainClipboard=false) ->
     return if @isEmpty()
     text = @editor.buffer.getTextInRange(@getBufferRange())
     if maintainClipboard
-      text = "#{atom.clipboard.read()}\n#{text}"
+      {text: clipboardText, metadata} = atom.clipboard.readWithMetadata()
+
+      if metadata?.selections?
+        metadata.selections.push(text)
+      else
+        metadata = { selections: [clipboardText, text] }
+
+      text = "" + (clipboardText) + "\n" + text
     else
       metadata = { indentBasis: @editor.indentationForBufferRow(@getBufferRange().start.row) }
 

@@ -50,7 +50,7 @@ class EditorView extends View
     showLineNumbers: true
     autoIndent: true
     normalizeIndentOnPaste: true
-    nonWordCharacters: "./\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-"
+    nonWordCharacters: "/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-"
     preferredLineLength: 80
     tabLength: 2
     softWrap: false
@@ -154,8 +154,8 @@ class EditorView extends View
       'editor:move-to-previous-word': => @editor.moveCursorToPreviousWord()
       'editor:select-word': => @editor.selectWord()
       'editor:consolidate-selections': (event) => @consolidateSelections(event)
-      'editor:backspace-to-beginning-of-word': => @editor.backspaceToBeginningOfWord()
-      'editor:backspace-to-beginning-of-line': => @editor.backspaceToBeginningOfLine()
+      'editor:delete-to-beginning-of-word': => @editor.deleteToBeginningOfWord()
+      'editor:delete-to-beginning-of-line': => @editor.deleteToBeginningOfLine()
       'editor:delete-to-end-of-word': => @editor.deleteToEndOfWord()
       'editor:delete-line': => @editor.deleteLine()
       'editor:cut-to-end-of-line': => @editor.cutToEndOfLine()
@@ -387,7 +387,7 @@ class EditorView extends View
 
       screenPosition = @screenPositionFromMouseEvent(e)
       if clickCount == 1
-        if e.metaKey
+        if e.metaKey or (process.platform isnt 'darwin' and e.ctrlKey)
           @editor.addCursorAtScreenPosition(screenPosition)
         else if e.shiftKey
           @editor.selectToScreenPosition(screenPosition)
