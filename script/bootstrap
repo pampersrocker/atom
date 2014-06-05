@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var fs = require('fs');
+var path = require('path');
 
 var nodeVersion = process.versions.node.split('.')
 var nodeMajorVersion = +nodeVersion[0]
@@ -11,8 +12,18 @@ if (nodeMajorVersion === 0 && nodeMinorVersion < 10) {
 }
 
 // Make sure python2.7 is installed
-if (process.platform == 'win32' && !fs.existsSync('C:\\Python27\\')) {
-  console.warn("You must have Python 2.7 installed at 'C:\\Python27\\'");
+function pythonInPath ( envPath ) {
+  var paths = envPath.split(';');
+  for (var i = 0; i < paths.length; ++i) {
+    if (fs.existsSync(path.join(paths[i], 'python.exe'))) {
+      return true;
+    };
+  }
+  return false;
+}
+
+if (process.platform == 'win32' && !pythonInPath(process.env.PATH)) {
+  console.warn("Python 2.7 was not found in your path environment variable");
   process.exit(1);
 }
 
