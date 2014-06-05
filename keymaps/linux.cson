@@ -1,6 +1,7 @@
 'body':
   # Atom Specific
   'enter': 'core:confirm'
+  'num-enter': 'core:confirm'
   'escape': 'core:cancel'
   'up': 'core:move-up'
   'down': 'core:move-down'
@@ -69,8 +70,8 @@
   'ctrl-delete': 'editor:delete-to-end-of-word'
   'ctrl-home': 'core:move-to-top'
   'ctrl-end': 'core:move-to-bottom'
-  'cmd-shift-home': 'core:select-to-top'
-  'cmd-shift-end': 'core:select-to-bottom'
+  'ctrl-shift-home': 'core:select-to-top'
+  'ctrl-shift-end': 'core:select-to-bottom'
 
   # Sublime Parity
   'ctrl-a': 'core:select-all'
