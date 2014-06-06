@@ -15,7 +15,7 @@ if (nodeMajorVersion === 0 && nodeMinorVersion < 10) {
 function pythonInPath ( envPath ) {
   var paths = envPath.split(';');
   for (var i = 0; i < paths.length; ++i) {
-    if (fs.existsSync(path.join(paths[i], 'python.exe'))) {
+    if (fs.existsSync(path.join(paths[i], 'python.exe')) && fs.existsSync(path.join(paths[i], 'python27.dll'))) {
       return true;
     };
   }
