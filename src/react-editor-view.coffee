@@ -7,7 +7,7 @@ module.exports =
 class ReactEditorView extends View
   # The `overlayer` class is included for backwards compatibility with
   # context menus. It should be removed in v1.0.0
-  @content: -> @div class: 'editor react-wrapper overlayer'
+  @content: -> @div class: 'editor react overlayer'
 
   focusOnAttach: false
 
@@ -54,7 +54,7 @@ class ReactEditorView extends View
       @gutter.find('.line-number').removeClass(klass)
 
     @gutter.addClassToLine = (bufferRow, klass) =>
-      lines = @gutter.find(".line-number-#{bufferRow}")
+      lines = @gutter.find("[data-buffer-row='#{bufferRow}']")
       lines.addClass(klass)
       lines.length > 0
 

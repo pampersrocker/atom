@@ -54,7 +54,9 @@ start = ->
     AtomApplication.open(args)
     console.log("App load time: #{Date.now() - global.shellStartTime}ms") unless args.test
 
-global.devResourcePath = path.join(app.getHomeDir(), 'github', 'atom')
+global.devResourcePath = process.env.ATOM_DEV_RESOURCE_PATH ? path.join(app.getHomeDir(), 'github', 'atom')
+# Normalize to make sure drive letter case is consistent on Windows
+global.devResourcePath = path.normalize(global.devResourcePath) if global.devResourcePath
 
 setupCrashReporter = ->
   crashReporter.start(productName: 'Atom', companyName: 'GitHub')

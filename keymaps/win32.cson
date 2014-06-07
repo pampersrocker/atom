@@ -36,6 +36,7 @@
   'shift-left': 'core:select-left'
   'shift-right': 'core:select-right'
   'delete': 'core:delete'
+  'shift-delete': 'core:delete'
   'pageup': 'core:page-up'
   'pagedown': 'core:page-down'
   'backspace': 'core:backspace'
@@ -44,6 +45,8 @@
   'ctrl-shift-tab': 'pane:show-previous-item'
   'ctrl-shift-up': 'core:move-up'
   'ctrl-shift-down': 'core:move-down'
+  'ctrl-alt-up': 'editor:add-selection-above'
+  'ctrl-alt-down': 'editor:add-selection-below'
   'ctrl-=': 'window:increase-font-size'
   'ctrl-+': 'window:increase-font-size'
   'ctrl--': 'window:decrease-font-size'
@@ -76,7 +79,7 @@
 
   # Sublime Parity
   'ctrl-a': 'core:select-all'
-  'ctrl-alt-p': 'editor:log-cursor-scope'
+  'ctrl-alt-shift-p': 'editor:log-cursor-scope'
   'ctrl-k ctrl-u': 'editor:upper-case'
   'ctrl-k ctrl-l': 'editor:lower-case'
 
